@@ -18,13 +18,14 @@ selected=$(
 [ -z "$selected" ] && exit 0
 
 buf_name=$(echo "$selected" | sed 's/: .*//')
-tmux show-buffer -b "$buf_name" \
-    | awk -v delim="$DELIMITER" '{
-        pos = index($0, delim)
-        if (pos > 0) { print substr($0, 1, pos - 1) }
-        else { print $0 }
-    }' \
-    | tr -d '\n' \
-    | tmux load-buffer -b total-recall-paste -
+content=$(tmux show-buffer -b "$buf_name")
+
+if echo "$content" | grep -qF "$DELIMITER"; then
+    paste=$(echo "$content" | sed "s/$(printf '%s' "$DELIMITER" | sed 's/[[\.*^$()+?{}|]/\\&/g').*//" | tr -d '\n')
+else
+    paste=$(echo "$content" | tr -d '\n')
+fi
+
+printf '%s' "$paste" | tmux load-buffer -b total-recall-paste -
 tmux paste-buffer -p -b total-recall-paste
 tmux delete-buffer -b total-recall-paste

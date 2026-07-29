@@ -3,8 +3,9 @@
 BUF_NAME="$1"
 DELIMITER="${2:- ::=:: }"
 
-tmux show-buffer -b "$BUF_NAME" 2>/dev/null | awk -v delim="$DELIMITER" '{
-    pos = index($0, delim)
-    if (pos > 0) { print substr($0, 1, pos - 1) }
-    else { print $0 }
-}'
+content=$(tmux show-buffer -b "$BUF_NAME" 2>/dev/null)
+if echo "$content" | grep -qF "$DELIMITER"; then
+    echo "$content" | sed "s/$(printf '%s' "$DELIMITER" | sed 's/[[\.*^$()+?{}|]/\\&/g').*//"
+else
+    echo "$content"
+fi
