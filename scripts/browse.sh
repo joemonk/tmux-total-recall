@@ -29,4 +29,4 @@ tmux show-buffer -b "$buf_name" \
     }' \
     | tr -d '\n' \
     | tmux load-buffer -b total-recall-paste -
-tmux paste-buffer -b total-recall-paste
+tmux paste-buffer -p -b total-recall-paste
