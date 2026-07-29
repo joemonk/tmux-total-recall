@@ -26,5 +26,5 @@ tmux show-buffer -b "$buf_name" \
         }
     }' \
     | tr -d '\n' \
-    | tmux load-buffer -
-tmux paste-buffer
+    | tmux load-buffer -b total-recall-paste -
+tmux paste-buffer -b total-recall-paste
