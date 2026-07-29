@@ -35,7 +35,7 @@ selected=$(
         label=$(printf '%s' "$content" | extract_label)
         echo "$name: $label"
     done \
-    | awk '!seen[$2]++' \
+    | awk -F': ' '!seen[$2]++' \
     | fzf --with-nth 2.. \
           --delimiter ': ' \
           --header 'enter: paste  ctrl-d: delete' \
@@ -50,7 +50,7 @@ selected=$(
                       } else { print \$0 }
                   }');
                   echo \"\$n: \$l\";
-              done | awk '!seen[\$2]++'
+              done | awk -F': ' '!seen[$2]++'
           )"
 )
 
