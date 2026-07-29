@@ -16,7 +16,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y tmux fzf
+          sudo apt-get install -y tmux fzf ffmpeg
 
       - name: Setup plugin and sample data
         run: |
