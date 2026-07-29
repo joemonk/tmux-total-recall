@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
-# Delete a buffer from tmux and remove it from cache/source files
-BUF_NAME="$1"
-CACHE_FILE="$2"
-SOURCES="$3"
+# Delete an entry - removes line from file by file:linenum reference
+REF="$1"  # format: filepath:linenum
 
-content=$(tmux show-buffer -b "$BUF_NAME" 2>/dev/null)
-[ -z "$content" ] && exit 0
+filepath=$(echo "$REF" | sed 's/:[0-9]*$//')
+linenum=$(echo "$REF" | grep -oE '[0-9]+$')
 
-tmux delete-buffer -b "$BUF_NAME"
+[ -f "$filepath" ] || exit 0
 
-for f in "$CACHE_FILE" $SOURCES; do
-    [ -f "$f" ] || continue
-    grep -qF "$content" "$f" && grep -vF "$content" "$f" > "$f.tmp" && mv "$f.tmp" "$f"
-done
+# BSD sed (macOS) requires a backup extension, use empty string with -e trick
+if sed --version 2>/dev/null | grep -q GNU; then
+    sed -i "${linenum}d" "$filepath"
+else
+    sed -i '' "${linenum}d" "$filepath"
+fi
