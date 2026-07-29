@@ -1,17 +1,18 @@
 #!/usr/bin/env bash
 # List entries from files and tmux buffers for fzf
-# Output format: "source_ref: display_label"
-# source_ref is either "filepath:linenum" (file entry) or "buf:buffername" (tmux buffer)
 DELIMITER="${1:- ::=:: }"
 CACHE_FILE="${2:-}"
 SOURCES="${3:-}"
 
-seen=()
+SEEN_FILE=$(mktemp)
+trap 'rm -f "$SEEN_FILE"' EXIT
 
-is_seen() {
-    local key="$1"
-    for s in "${seen[@]}"; do [ "$s" = "$key" ] && return 0; done
-    return 1
+emit() {
+    local label="$1"
+    local ref="$2"
+    grep -qxF "$label" "$SEEN_FILE" && return
+    echo "$label" >> "$SEEN_FILE"
+    echo "$ref: $label"
 }
 
 # Read from cache and source files first
@@ -26,14 +27,12 @@ for f in "$CACHE_FILE" $SOURCES; do
             if (pos > 0) { print substr($0, pos + length(delim)) }
             else { print $0 }
         }')
-        is_seen "$label" && continue
-        seen+=("$label")
-        echo "$f:$linenum: $label"
+        emit "$label" "$f:$linenum"
     done < "$f"
 done
 
 # Then add tmux buffers not already seen
-tmux list-buffers -F '#{buffer_name}' 2>/dev/null | while read -r name; do
+while read -r name; do
     content=$(tmux show-buffer -b "$name" 2>/dev/null)
     [ -z "$content" ] && continue
     label=$(printf '%s' "$content" | awk -v delim="$DELIMITER" '{
@@ -41,7 +40,5 @@ tmux list-buffers -F '#{buffer_name}' 2>/dev/null | while read -r name; do
         if (pos > 0) { print substr($0, pos + length(delim)) }
         else { print $0 }
     }')
-    is_seen "$label" && continue
-    seen+=("$label")
-    echo "buf:$name: $label"
-done
+    emit "$label" "buf:$name"
+done < <(tmux list-buffers -F '#{buffer_name}' 2>/dev/null)
