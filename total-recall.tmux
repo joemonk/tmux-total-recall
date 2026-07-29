@@ -8,6 +8,7 @@ default_bind_save_auto="A"
 default_cache_file="$HOME/.tmux-total-recall"
 default_sources=""
 default_history_file="$HOME/.zsh_history"
+default_delimiter="::=::"
 
 get_opt() {
     local opt="$1"
@@ -23,6 +24,7 @@ bind_save_auto=$(get_opt "@total-recall-bind-save-auto" "$default_bind_save_auto
 cache_file=$(get_opt "@total-recall-cache-file" "$default_cache_file")
 sources=$(get_opt "@total-recall-sources" "$default_sources")
 history_file=$(get_opt "@total-recall-history-file" "$default_history_file")
+delimiter=$(get_opt "@total-recall-delimiter" "$default_delimiter")
 
 # Touch cache file and load it
 tmux run-shell "touch '$cache_file'"
@@ -36,10 +38,10 @@ done
 
 # Bindings
 tmux bind-key "$bind_browse" display-popup -E \
-    "$CURRENT_DIR/scripts/browse.sh '$cache_file' '$sources'"
+    "$CURRENT_DIR/scripts/browse.sh '$cache_file' '$sources' '$delimiter'"
 
 tmux bind-key "$bind_save" display-popup -E \
-    "$CURRENT_DIR/scripts/save.sh '$cache_file' '$key_pattern'"
+    "$CURRENT_DIR/scripts/save.sh '$cache_file' '' '$history_file' '$delimiter'"
 
 tmux bind-key "$bind_save_auto" display-popup -E \
-    "$CURRENT_DIR/scripts/save.sh '$cache_file' '$key_pattern' auto '$history_file'"
+    "$CURRENT_DIR/scripts/save.sh '$cache_file' auto '$history_file' '$delimiter'"

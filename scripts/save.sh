@@ -1,17 +1,15 @@
 #!/usr/bin/env bash
 # Save a command to the cache file, optionally with a label
 CACHE_FILE="${1:-$HOME/.tmux-total-recall}"
-KEY_PATTERN="${2:-^[^ ]+ = \".*\"\$}"
-AUTO="${3:-}"
-HISTORY_FILE="${4:-$HOME/.zsh_history}"
+AUTO="${2:-}"
+HISTORY_FILE="${3:-$HOME/.zsh_history}"
+DELIMITER="${4:- ::=:: }"
 
 if [ "$AUTO" = "auto" ]; then
     last=$(tail -1 "$HISTORY_FILE")
-    # zsh extended history format: `: timestamp:elapsed;command`
     if echo "$last" | grep -q '^:[^;]*;'; then
         CMD=$(echo "$last" | sed 's/^:[^;]*;//')
     else
-        # bash / plain history
         CMD="$last"
     fi
 else
@@ -26,7 +24,7 @@ echo -n "Label (optional, Enter to skip): "
 read -r LABEL
 
 if [ -n "$LABEL" ]; then
-    LINE="$CMD = \"$LABEL\""
+    LINE="$CMD$DELIMITER$LABEL"
 else
     LINE="$CMD"
 fi
