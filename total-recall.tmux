@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 CURRENT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-# Default options
 default_bind_browse="b"
 default_bind_save="a"
 default_bind_save_auto="A"
@@ -26,8 +25,14 @@ sources=$(get_opt "@total-recall-sources" "$default_sources")
 history_file=$(get_opt "@total-recall-history-file" "$default_history_file")
 delimiter=$(get_opt "@total-recall-delimiter" "$default_delimiter")
 
-# Ensure cache file exists
+# Ensure cache file and sources exist, load into tmux buffers
 tmux run-shell "touch '$cache_file'"
+tmux run-shell "$CURRENT_DIR/scripts/load-buffers.sh '$cache_file'"
+
+for src in $sources; do
+    tmux run-shell "touch '$src'"
+    tmux run-shell "$CURRENT_DIR/scripts/load-buffers.sh '$src'"
+done
 
 # Bindings
 tmux bind-key "$bind_browse" display-popup -E \

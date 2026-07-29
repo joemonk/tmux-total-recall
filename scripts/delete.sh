@@ -1,17 +1,15 @@
 #!/usr/bin/env bash
-# Delete an entry - either from file or tmux buffer
-REF="$1"
+# Delete a buffer from tmux and remove from cache/source files
+BUF_NAME="$1"
+CACHE_FILE="$2"
+SOURCES="$3"
 
-if echo "$REF" | grep -q '^buf:'; then
-    bufname=$(echo "$REF" | sed 's/^buf://')
-    tmux delete-buffer -b "$bufname"
-else
-    filepath=$(echo "$REF" | sed 's/:[0-9]*$//')
-    linenum=$(echo "$REF" | grep -oE '[0-9]+$')
-    [ -f "$filepath" ] || exit 0
-    if sed --version 2>/dev/null | grep -q GNU; then
-        sed -i "${linenum}d" "$filepath"
-    else
-        sed -i '' "${linenum}d" "$filepath"
-    fi
-fi
+content=$(tmux show-buffer -b "$BUF_NAME" 2>/dev/null)
+[ -z "$content" ] && exit 0
+
+tmux delete-buffer -b "$BUF_NAME"
+
+for f in "$CACHE_FILE" $SOURCES; do
+    [ -f "$f" ] || continue
+    grep -qF "$content" "$f" && grep -vF "$content" "$f" > "$f.tmp" && mv "$f.tmp" "$f"
+done

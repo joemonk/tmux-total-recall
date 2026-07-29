@@ -1,40 +1,29 @@
 #!/usr/bin/env bash
-# Browse saved snippets and tmux buffers with fzf, paste selected command
+# Browse tmux buffers with fzf, paste selected
 CACHE_FILE="${1:-}"
 SOURCES="${2:-}"
 DELIMITER="${3:- ::=:: }"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 selected=$(
-    "$SCRIPT_DIR/list-buffers.sh" "$DELIMITER" "$CACHE_FILE" "$SOURCES" \
+    "$SCRIPT_DIR/list-buffers.sh" "$DELIMITER" \
     | fzf --with-nth 2.. \
           --delimiter ': ' \
           --header 'enter: paste  ctrl-d: delete' \
           --preview "$SCRIPT_DIR/preview.sh {1} '$DELIMITER'" \
           --preview-window right:40% \
-          --bind "ctrl-d:execute($SCRIPT_DIR/delete.sh {1})+reload($SCRIPT_DIR/list-buffers.sh '$DELIMITER' '$CACHE_FILE' '$SOURCES')"
+          --bind "ctrl-d:execute($SCRIPT_DIR/delete.sh {1} '$CACHE_FILE' '$SOURCES')+reload($SCRIPT_DIR/list-buffers.sh '$DELIMITER')"
 )
 
 [ -z "$selected" ] && exit 0
 
-ref=$(echo "$selected" | sed 's/: .*//')
-
-if echo "$ref" | grep -q '^buf:'; then
-    bufname=$(echo "$ref" | sed 's/^buf://')
-    tmux show-buffer -b "$bufname" \
-        | tr -d '\n' \
-        | tmux load-buffer -b total-recall-paste -
-else
-    filepath=$(echo "$ref" | sed 's/:[0-9]*$//')
-    linenum=$(echo "$ref" | grep -oE '[0-9]+$')
-    sed -n "${linenum}p" "$filepath" \
-        | awk -v delim="$DELIMITER" '{
-            pos = index($0, delim)
-            if (pos > 0) { print substr($0, 1, pos - 1) }
-            else { print $0 }
-        }' \
-        | tr -d '\n' \
-        | tmux load-buffer -b total-recall-paste -
-fi
-
+buf_name=$(echo "$selected" | sed 's/: .*//')
+tmux show-buffer -b "$buf_name" \
+    | awk -v delim="$DELIMITER" '{
+        pos = index($0, delim)
+        if (pos > 0) { print substr($0, 1, pos - 1) }
+        else { print $0 }
+    }' \
+    | tr -d '\n' \
+    | tmux load-buffer -b total-recall-paste -
 tmux paste-buffer -p -b total-recall-paste
