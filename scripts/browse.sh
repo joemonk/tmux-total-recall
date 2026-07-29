@@ -26,6 +26,4 @@ else
     paste=$(echo "$content" | tr -d '\n')
 fi
 
-printf '%s' "$paste" | tmux load-buffer -b total-recall-paste -
-tmux paste-buffer -p -b total-recall-paste
-tmux delete-buffer -b total-recall-paste
+tmux send-keys "$paste"
