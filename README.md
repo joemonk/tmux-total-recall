@@ -38,9 +38,6 @@ set -g @total-recall-cache-file "~/.tmux-total-recall"
 # Extra files to load into buffers on startup (space-separated)
 set -g @total-recall-sources "~/.my-snippets ~/work-commands"
 
-# Pattern that identifies key="label" format entries (awk regex)
-set -g @total-recall-key-pattern "^[^ ]+ = \".*\"$"
-
 # Shell history file for auto-save (default: ~/.zsh_history)
 set -g @total-recall-history-file "~/.zsh_history"
 ```
