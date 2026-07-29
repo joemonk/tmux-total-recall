@@ -29,7 +29,7 @@ jobs:
           EOF
           printf 'deploy-prod = "Deploy to production"\ndb-backup = "Database backup"\nopenstack server list\nkubectl get pods --all-namespaces\n' > ~/.total-recall-demo
 
-      - uses: charmbracelet/vhs-action@v2
+      - uses: charmbracelet/vhs-action@760919cb94f92ecacb2901fa8e019998076835d8
         with:
           path: demo.tape
 
