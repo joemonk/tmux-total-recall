@@ -1,0 +1,42 @@
+name: Generate Demo GIF
+
+on:
+  push:
+    paths:
+      - 'demo.tape'
+      - '.github/workflows/demo.yml'
+  workflow_dispatch:
+
+jobs:
+  demo:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y tmux fzf
+
+      - name: Setup plugin and sample data
+        run: |
+          mkdir -p ~/.tmux/plugins/tmux-total-recall
+          cp -r . ~/.tmux/plugins/tmux-total-recall/
+          cat > ~/.tmux.conf << 'EOF'
+          set -g prefix C-b
+          set -g @total-recall-cache-file "$HOME/.total-recall-demo"
+          run-shell "$HOME/.tmux/plugins/tmux-total-recall/total-recall.tmux"
+          EOF
+          printf 'deploy-prod = "Deploy to production"\ndb-backup = "Database backup"\nopenstack server list\nkubectl get pods --all-namespaces\n' > ~/.total-recall-demo
+
+      - uses: charmbracelet/vhs-action@v2
+        with:
+          path: demo.tape
+
+      - name: Commit GIF to repo
+        run: |
+          git config user.name "Matt Rooney"
+          git config user.email "joemonk@gmail.com"
+          git add demo.gif
+          git diff --staged --quiet || git commit -m "docs: update demo gif"
+          git push
