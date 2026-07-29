@@ -36,7 +36,7 @@ done
 
 # Bindings
 tmux bind-key "$bind_browse" display-popup -E \
-    "$CURRENT_DIR/scripts/browse.sh '$key_pattern'"
+    "$CURRENT_DIR/scripts/browse.sh '$key_pattern' '$cache_file' '$sources'"
 
 tmux bind-key "$bind_save" display-popup -E \
     "$CURRENT_DIR/scripts/save.sh '$cache_file' '$key_pattern'"
