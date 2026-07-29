@@ -1,5 +1,7 @@
 # tmux-total-recall
 
+![demo](demo.gif)
+
 A tmux plugin for managing a personal buffer library — search, paste, and save commands and snippets using fzf.
 
 Supports a `key = "label"` format: display the human-readable label in the picker but paste only the key.
