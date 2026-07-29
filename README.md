@@ -40,6 +40,24 @@ set -g @total-recall-sources "~/.my-snippets ~/work-commands"
 
 # Pattern that identifies key="label" format entries (awk regex)
 set -g @total-recall-key-pattern "^[^ ]+ = \".*\"$"
+
+# Shell history file for auto-save (default: ~/.zsh_history)
+set -g @total-recall-history-file "~/.zsh_history"
+```
+
+## Shell history
+
+The auto-save binding (`prefix + A`) reads the last entry from your history file. Configure it to match your shell:
+
+| Shell | History file | Format |
+|-------|-------------|--------|
+| zsh | `~/.zsh_history` (default) | `: timestamp;command` — prefix stripped automatically |
+| bash | `~/.bash_history` | plain commands |
+| fish | not supported | fish uses a YAML format |
+
+**bash example:**
+```tmux
+set -g @total-recall-history-file "~/.bash_history"
 ```
 
 ## The `key = "label"` format

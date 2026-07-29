@@ -8,6 +8,7 @@ default_bind_save_auto="A"
 default_cache_file="$HOME/.tmux-total-recall"
 default_sources=""
 default_key_pattern="^[^ ]+ = \".*\"\$"
+default_history_file="$HOME/.zsh_history"
 
 get_opt() {
     local opt="$1"
@@ -23,6 +24,7 @@ bind_save_auto=$(get_opt "@total-recall-bind-save-auto" "$default_bind_save_auto
 cache_file=$(get_opt "@total-recall-cache-file" "$default_cache_file")
 sources=$(get_opt "@total-recall-sources" "$default_sources")
 key_pattern=$(get_opt "@total-recall-key-pattern" "$default_key_pattern")
+history_file=$(get_opt "@total-recall-history-file" "$default_history_file")
 
 # Touch cache file and load it
 tmux run-shell "touch '$cache_file'"
@@ -42,4 +44,4 @@ tmux bind-key "$bind_save" display-popup -E \
     "$CURRENT_DIR/scripts/save.sh '$cache_file' '$key_pattern'"
 
 tmux bind-key "$bind_save_auto" display-popup -E \
-    "$CURRENT_DIR/scripts/save.sh '$cache_file' '$key_pattern' auto"
+    "$CURRENT_DIR/scripts/save.sh '$cache_file' '$key_pattern' auto '$history_file'"

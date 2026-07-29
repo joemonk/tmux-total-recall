@@ -3,9 +3,17 @@
 CACHE_FILE="${1:-$HOME/.tmux-total-recall}"
 KEY_PATTERN="${2:-^[^ ]+ = \".*\"\$}"
 AUTO="${3:-}"
+HISTORY_FILE="${4:-$HOME/.zsh_history}"
 
 if [ "$AUTO" = "auto" ]; then
-    CMD=$(tail -1 ~/.zsh_history | sed 's/^:[^;]*;//')
+    last=$(tail -1 "$HISTORY_FILE")
+    # zsh extended history format: `: timestamp:elapsed;command`
+    if echo "$last" | grep -q '^:[^;]*;'; then
+        CMD=$(echo "$last" | sed 's/^:[^;]*;//')
+    else
+        # bash / plain history
+        CMD="$last"
+    fi
 else
     CMD=""
 fi
